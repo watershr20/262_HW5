@@ -15,7 +15,33 @@ library(broom)
 ```
 
 ```{r}
-1 + 1
+# Set seed so the random numbers stay the same each time
+set.seed(123)
+
+# Create 100 site IDs
+site_id <- 1:100
+
+# Create made-up environmental data for each site
+temperature <- round(rnorm(100, mean = 31, sd = 5), 1)       # degrees Celsius
+humidity <- round(runif(100, min = 10, max = 55), 1)         # percent
+wind_speed <- round(runif(100, min = 5, max = 55), 1)        # km/hr
+fuel_moisture <- round(runif(100, min = 3, max = 18), 1)     # percent
+slope <- round(runif(100, min = 0, max = 45), 1)             # degrees
+distance <- round(runif(100, min = 0, max = 5000), 0)        # meters
+
+# Combine all variables into one data frame
+fire_sites <- data.frame(
+  site_id,
+  temperature,
+  humidity,
+  wind_speed,
+  fuel_moisture,
+  slope,
+  distance
+)
+
+# View the data frame
+fire_sites
 ```
 
 You can add options to executable code like this
