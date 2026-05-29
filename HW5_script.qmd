@@ -6,13 +6,24 @@ format: pdf
 editor: visual
 ---
 
+First, we install the relevant packages.
+
 ```{r}
 library(tidyverse)
 library(here)
 library(usethis)
-library(lubridate)
 library(broom)
 ```
+
+**Fire Risk Program Contract** 
+
+Inputs Outputs Parameters
+
+# -----------------------------
+
+# Inputs & Parameters: Set Up the Data Frame
+
+# -----------------------------
 
 ```{r}
 # Set seed so the random numbers stay the same each time
@@ -40,15 +51,117 @@ fire_sites <- data.frame(
   distance
 )
 
-# View the data frame
+# View the data frame & save as a CSV
 fire_sites
+
+write.csv(fire_sites, "fire_sites.csv")
 ```
 
-You can add options to executable code like this
+# -----------------------------
+
+# Module 1: Climate conditions
+
+# -----------------------------
+
+*Module 1 Contract*
+
+*Module 1 Calculation*
+```{r}
+#Call climate_conditions function
+
+```
+
+# -----------------------------
+
+# Module 2: Land conditions
+
+# -----------------------------
+
+*Module 2 Contract*
+
+*Module 2 Calculation*
+```{r}
+#Call land_conditions function
+
+```
+
+# -----------------------------
+
+# Module 3: Wildfire likelihood
+
+# -----------------------------
+
+*Module 3 Contract*
+
+*Module 3 Calculation*
+```{r}
+#Call wildfire_likelihood function
+
+```
+
+# -----------------------------
+
+# Module 4: Final risk factor
+
+# -----------------------------
+
+*Module 4 Contract*
+
+*Module 4 Calculation*
+```{r}
+#Call risk_factor function
+
+```
+
+# -----------------------------
+
+# Final Output: Run For Loop to Classify Risk Categories
+
+# -----------------------------
 
 ```{r}
-#| echo: false
-2 * 2
-```
+for (i in 1:nrow(fire_sites)) {
 
-The `echo: false` option disables the printing of code (only output is displayed).
+ fire_sites$climate_risk_factor[i] <- climate_conditions(
+   fire_sites$temperature[i],
+   fire_sites$humidity[i],
+   fire_sites$wind_speed[i]
+ )
+
+ fire_sites$ignition_probability[i] <- land_conditions(
+   fire_sites$fuel_moisture[i],
+   fire_sites$slope[i]
+ )
+
+ fire_sites$wildfire_probability[i] <- wildfire_likelihood(
+   fire_sites$climate_risk_factor[i],
+   fire_sites$ignition_probability[i]
+ )
+
+ fire_sites$risk_score[i] <- risk_factor(
+   fire_sites$wildfire_probability[i],
+   fire_sites$distance[i]
+ )
+}
+
+# Inspect the finished data frame:
+head(fire_sites)
+
+summary(fire_sites$risk_score)
+
+#Classify the sites into low, medium, and high risk:
+
+fire_sites$risk_category <- NA
+
+for (i in 1:nrow(fire_sites)) {
+
+ if (fire_sites$risk_score[i] < 1.5) {
+   fire_sites$risk_category[i] <- "Low"
+ } else if (fire_sites$risk_score[i] < 2.3) {
+   fire_sites$risk_category[i] <- "Medium"
+ } else {
+   fire_sites$risk_category[i] <- "High"
+ }
+}
+
+```
