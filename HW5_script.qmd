@@ -77,12 +77,16 @@ write.csv(fire_sites, "fire_sites.csv")
 
 # ----------------------------
 
-*Module 2 Contract*
+Inputs:
+Fuel moisture: The percentage of moisture by weight contained by living and dead vegetation averaged across a site. 
+Slope: The average topographic slope of each location in degrees. 
 
+Output: 
+Land Fire Probability: The probability of a fire igniting and spreading based purely on land conditions. 
 *Module 2 Calculation*
 ```{r}
 #Call land_conditions function
-
+source(here("land_conditions.R"))
 ```
 
 # -----------------------------
@@ -96,7 +100,7 @@ write.csv(fire_sites, "fire_sites.csv")
 *Module 3 Calculation*
 ```{r}
 #Call wildfire_likelihood function
-
+source(here("wildfire_likelihood.R"))
 ```
 
 # -----------------------------
