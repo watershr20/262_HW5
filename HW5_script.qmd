@@ -75,7 +75,7 @@ write.csv(fire_sites, "fire_sites.csv")
 
 # Module 2: Land conditions
 
-# -----------------------------
+# ----------------------------
 
 *Module 2 Contract*
 
