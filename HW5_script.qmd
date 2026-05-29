@@ -1,0 +1,28 @@
+---
+title: "Assignment 5"
+author: "Christina Treacy and Hayden Waters"
+date: "May 29, 2026"
+format: pdf
+editor: visual
+---
+
+```{r}
+library(tidyverse)
+library(here)
+library(usethis)
+library(lubridate)
+library(broom)
+```
+
+```{r}
+1 + 1
+```
+
+You can add options to executable code like this
+
+```{r}
+#| echo: false
+2 * 2
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).
