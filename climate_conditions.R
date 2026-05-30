@@ -19,3 +19,4 @@ climate_conditions <- function(temperature, humidity, wind_speed, ht = 40, wv = 
   
   return(climate_risk_factor)
 }
+
