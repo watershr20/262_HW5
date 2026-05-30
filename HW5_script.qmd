@@ -55,7 +55,6 @@ fire_sites <- data.frame(
 
 # View the data frame & save as a CSV
 fire_sites
-
 write.csv(fire_sites, "fire_sites.csv")
 ```
 
@@ -125,7 +124,7 @@ fire_sites$climate_fire_probability <- NA
 fire_sites$land_fire_probability <- NA
 fire_sites$wildfire_probability <- NA
 
-for (i in 1:nrow(fire_sites)) {
+fire_sites_probability <- for (i in 1:nrow(fire_sites)) {
   
   fire_sites$climate_fire_probability[i] <- climate_conditions(
     fire_sites$temperature[i],
@@ -143,4 +142,8 @@ for (i in 1:nrow(fire_sites)) {
     fire_sites$land_fire_probability[i]
   )
 }
+# View the data frame & save as a CSV
+fire_sites_probability
+
+write.csv(fire_sites_probability, "fire_sites_probability.csv")
 ```
