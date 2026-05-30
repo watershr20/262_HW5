@@ -6,13 +6,15 @@ format: pdf
 editor: visual
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
 First, we install the relevant packages.
 
 ```{r}
 library(tidyverse)
 library(here)
-library(usethis)
-library(broom)
 ```
 
 # Fire Risk Program Contract
@@ -53,8 +55,7 @@ fire_sites <- data.frame(
   slope
 )
 
-# View the data frame & save as a CSV
-fire_sites
+# Save the data frame as a CSV
 write.csv(fire_sites, "fire_sites.csv")
 ```
 
@@ -110,7 +111,7 @@ In this module, the function combines the climate fire risk and land conditions 
 
 *Output*: Overall fire likelihood as a probability
 
-*What the function will do*: Estimate the probability that a wildfire will start given climate conditions and land conditions using the following equation: wildfire_probability = land_fire_probability * climate_fire_probability
+*What the function will do*: Estimate the probability that a wildfire will start given climate conditions and land conditions using the following equation: wildfire_probability = land_fire_probability \* climate_fire_probability
 
 *Call Module 3 Function and Run For Loop to Generate Output*
 
@@ -145,8 +146,6 @@ for (i in 1:nrow(fire_sites)) {
     fire_sites_probability$land_fire_probability[i]
   )
 }
-# View the data frame & save as a CSV
-fire_sites_probability
-
+# Save the data frame as a CSV
 write.csv(fire_sites_probability, "fire_sites_probability.csv")
 ```
