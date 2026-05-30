@@ -16,14 +16,19 @@ library(broom)
 ```
 
 # Fire Risk Program Contract
+
 In this program, fire risk is defined as the likelihood of a wildfire spreading from a given site given certain risk conditions, including dry vegetation, hot temperatures, low humidity, high wind speed, and steep slope.
 
-*Goal*: Use climate and land conditions data from 100 Southern California chaparral sites to calculate a wildfire risk probability for each site. 
-*Inputs*: temperature, humidity, fuel_moisture, slope, distance 
-*Output*: Wildfire Risk Probability 
+*Goal*: Use climate and land conditions data from 100 Southern California chaparral sites to calculate a wildfire risk probability for each site.
+
+*Input*: fire site data with average temperature, humidity, fuel_moisture, and slope at each given site
+
+*Output*: Wildfire Risk Probability
+
 *Parameters*: hot fire-weather temperature (ht), strong wind value (wv), fuel moisture sensitivity (fms), ignition_threshold
 
-### Inputs & Parameters: Set Up the Data Frame
+### Input: Set Up the Data Frame
+
 ```{r}
 # Set seed so the random numbers stay the same each time
 set.seed(123)
@@ -54,18 +59,22 @@ fire_sites
 write.csv(fire_sites, "fire_sites.csv")
 ```
 
-
 ## Module 1: Climate conditions
 
-###Module 1 Contract 
+### Module 1 Contract
+
 The climate conditions module converts temperature, humidity, and wind speed into proportional risk factors from 0 to 1. The function combines temperature, humidity, and wind speed and divides each variable by a rough upper value to put them on a similar scale. For the temperature calculation, we assume that around 40°C is a very hot fire-weather temperature, so higher temperatures will increase this factor. For the humidity calculation, air with lower humidity (drier air) signifies higher fire risk. Wind speed is divided by 60 because we assume that 60 km/hr is a strong wind value for this model, and higher wind speeds increase fire risk.Essentially, this function says: hot + dry + windy = higher climate risk, but it takes the average factor to create a climate fire probability.
 
-**Inputs**: average temperature (degrees Celsius), humidity (percent), and wind speed (km/hr) at each location 
-**Output**: Climate fire risk probability - average fire risk probability based on climate factors alone
+**Inputs**: average temperature (degrees Celsius), humidity (percent), and wind speed (km/hr) at each location
+
 **Parameters**: hot fire-weather temperature (ht) = 40°C; strong wind value (wv) = 60 km/hr
+
+**Output**: Climate fire risk probability - average fire risk probability based on climate factors alone
+
 **What the function will do**: Compute the average probability of wildfire risk based on climate conditions alone for each site using the following equation: climate_risk_probability = ((temperature / ht) + ((100 - humidity) / 100) + (wind_speed / wv)) / 3
 
 *Call Module 1 Function*
+
 ```{r}
 #Call climate_conditions function
 source(here("climate_conditions.R"))
@@ -74,15 +83,19 @@ source(here("climate_conditions.R"))
 ## Module 2: Land conditions
 
 ### Module 2 Contract
-Fuel moisture is defined as the average percentage of moisture by weight contained by living and dead vegetation across a site. Slope is the average topographic slope of each location in degrees. Land-based fire probability is the probability of a fire igniting and spreading based purely on land conditions. The equation for fuel ignition probability is a logistic approximation of Scott and Burgan’s approach for estimating ignition probability. It includes a fuel moisture sensitivity parameter that represents the rate at which ignition probability decreases as moisture increases, as well as an ignition threshold parameter that shifts the curve to estimate higher ignition probabilities for drier fuels. The slope spread factor equation assumes that rate of spread roughly doubles for every 10 degrees of slope, which is a general approximation used in assessing wildfire risk. 
+
+Fuel moisture is defined as the average percentage of moisture by weight contained by living and dead vegetation across a site. Slope is the average topographic slope of each location in degrees. Land-based fire probability is the probability of a fire igniting and spreading based purely on land conditions. The equation for fuel ignition probability is a logistic approximation of Scott and Burgan’s approach for estimating ignition probability. It includes a fuel moisture sensitivity parameter that represents the rate at which ignition probability decreases as moisture increases, as well as an ignition threshold parameter that shifts the curve to estimate higher ignition probabilities for drier fuels. The slope spread factor equation assumes that rate of spread roughly doubles for every 10 degrees of slope, which is a general approximation used in assessing wildfire risk.
 
 *Inputs*: Fuel moisture - percentage of moisture by weight contained by living and dead vegetation averaged across a site, slope - average topographic slope of each location in degrees
+
 *Parameters*: Fuel moisture sensitivity (fms), ignition_threshold
+
 *Output*: Land Fire Probability - probability of a fire igniting and spreading based purely on land conditions
-*What the function will do*: Compute the probability of a fire igniting based on land conditions alone for each site using the following equation: fuel_ignition_probability = 1 / (1 + exp(fms * fuel_moisture - ignition_threshold)). 
-It will then multiply this result by a factor representing the effect of slope on the rate of spread, which is represented by the equation slope_spread_factor = 2^(slope/10). It will then convert this raw score to a 0-1 probability score using the equation land_fire_probability = raw_land_fire_factor / (1 + raw_land_fire_factor). 
+
+*What the function will do*: Compute the probability of a fire igniting based on land conditions alone for each site using the following equation: fuel_ignition_probability = 1 / (1 + exp(fms \* fuel_moisture - ignition_threshold)). It will then multiply this result by a factor representing the effect of slope on the rate of spread, which is represented by the equation slope_spread_factor = 2\^(slope/10). It will then convert this raw score to a 0-1 probability score using the equation land_fire_probability = raw_land_fire_factor / (1 + raw_land_fire_factor).
 
 *Call Module 2 Function*
+
 ```{r}
 #Call land_conditions function
 source(here("land_conditions.R"))
@@ -90,15 +103,18 @@ source(here("land_conditions.R"))
 
 ## Module 3: Wildfire Likelihood
 
-###Module 3 Contract
-In this module, the function combines the climate fire risk and land conditions fire risk probabilities to calculate an overall probability of a wildfire starting at each given site. Module 3 uses a for() loop to apply the wildfire likelihood function to all 100 sites, although this operation is not contained within the wildfire_likelihood function itself. For each site, the loop first calls the climate conditions module and the land conditions module to generate intermediate outputs. Those outputs are then passed into the wildfire likelihood function. This allows Modules 1 and 2 to remain simple single-site functions, while Module 3 manages the repeated calculations across the full dataset. 
+### Module 3 Contract
+
+In this module, the function combines the climate fire risk and land conditions fire risk probabilities to calculate an overall probability of a wildfire starting at each given site. Module 3 uses a for() loop to apply the wildfire likelihood function to all 100 sites, although this operation is not contained within the wildfire_likelihood function itself. For each site, the loop first calls the climate conditions module and the land conditions module to generate intermediate outputs. Those outputs are then passed into the wildfire likelihood function. This allows Modules 1 and 2 to remain simple single-site functions, while Module 3 manages the repeated calculations across the full dataset.
 
 *Inputs*: Climate-based risk probability, land-based fire probability
-*Output*: Overall fire likelihood as a probability
-*What the function will do*: Estimate the probability that a wildfire will start given climate conditions and land conditions using the following equation:
-wildfire_probability = land_fire_probability * climate_fire_probability
 
-*Call Module 3 Function and Run For Loop*
+*Output*: Overall fire likelihood as a probability
+
+*What the function will do*: Estimate the probability that a wildfire will start given climate conditions and land conditions using the following equation: wildfire_probability = land_fire_probability * climate_fire_probability
+
+*Call Module 3 Function and Run For Loop to Generate Output*
+
 ```{r}
 #Call wildfire_likelihood function
 source(here("wildfire_likelihood.R"))
