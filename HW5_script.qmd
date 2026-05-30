@@ -64,11 +64,18 @@ write.csv(fire_sites, "fire_sites.csv")
 # -----------------------------
 
 *Module 1 Contract*
+This function combines temperature, humidity, and wind speed and divides each variable by a rough upper value to put them on a similar scale. For the temperature calculation, we assume that around 40°C is a very hot fire-weather temperature, so higher temperatures will increase this factor. For the humidity calculation, air with lower humidity (drier air) signifies higher fire risk. Wind speed is divided by 60 because we assume that 60 km/hr is a strong wind value for this model, and higher wind speeds increase fire risk.Essentially, this function says: hot + dry + windy = higher climate risk.
 
-*Module 1 Calculation*
+Inputs: average temperature (degrees Celsius), humidity (percent), and wind speed (km/hr) at each location
+Output: Climate risk factor
+Parameters: hot fire-weather temperature (ht) = 40°C; strong wind value (wv) = 60 km/hr is a strong wind value
+What the function will do: Compute the level of wildfire risk based on climate conditions alone for each site using the following equation:
+climate_risk = (temperature / ht) +  ((100 - humidity) / 100) +  (wind_speed / wv)
+
+*Call Module 1 Function*
 ```{r}
 #Call climate_conditions function
-
+source(here("climate_conditions.R"))
 ```
 
 # -----------------------------
@@ -82,8 +89,9 @@ Fuel moisture: The percentage of moisture by weight contained by living and dead
 Slope: The average topographic slope of each location in degrees. 
 
 Output: 
-Land Fire Probability: The probability of a fire igniting and spreading based purely on land conditions. 
-*Module 2 Calculation*
+Land Fire Probability: The probability of a fire igniting and spreading based purely on land conditions.
+
+*Call Module 2 Function*
 ```{r}
 #Call land_conditions function
 source(here("land_conditions.R"))
@@ -97,10 +105,35 @@ source(here("land_conditions.R"))
 
 *Module 3 Contract*
 
-*Module 3 Calculation*
+*Call Module 3 Function and Run For Loop*
 ```{r}
 #Call wildfire_likelihood function
 source(here("wildfire_likelihood.R"))
+source("wildfire_likelihood.R")
+
+# After creating fire_sites, run the Module 3 loop
+fire_sites$climate_fire_probability <- NA
+fire_sites$land_fire_probability <- NA
+fire_sites$wildfire_probability <- NA
+
+for (i in 1:nrow(fire_sites)) {
+  
+  fire_sites$climate_fire_probability[i] <- climate_conditions(
+    fire_sites$temperature[i],
+    fire_sites$humidity[i],
+    fire_sites$wind_speed[i]
+  )
+  
+  fire_sites$land_fire_probability[i] <- land_conditions(
+    fire_sites$fuel_moisture[i],
+    fire_sites$slope[i]
+  )
+  
+  fire_sites$wildfire_probability[i] <- wildfire_likelihood(
+    fire_sites$climate_fire_probability[i],
+    fire_sites$land_fire_probability[i]
+  )
+}
 ```
 
 # -----------------------------
@@ -113,8 +146,108 @@ source(here("wildfire_likelihood.R"))
 
 *Module 4 Calculation*
 ```{r}
-#Call risk_factor function
+# Step 1: Calculate log10 risk scores
+fire_sites$risk_score <- NA
 
+for (i in 1:nrow(fire_sites)) {
+  
+  raw_risk <- risk_factor(
+    fire_sites$wildfire_probability[i],
+    fire_sites$distance[i]
+  )
+  
+  fire_sites$risk_score[i] <- log10(raw_risk + 0.001)
+}
+
+
+# Step 2: Calculate cutoffs based on the log10 risk scores
+low_cutoff <- quantile(fire_sites$risk_score, 0.33, na.rm = TRUE)
+high_cutoff <- quantile(fire_sites$risk_score, 0.66, na.rm = TRUE)
+
+
+# Step 3: Classify risk categories
+fire_sites$risk_category <- NA
+
+for (i in 1:nrow(fire_sites)) {
+  
+  if (is.na(fire_sites$risk_score[i])) {
+    fire_sites$risk_category[i] <- NA
+    
+  } else if (fire_sites$risk_score[i] < low_cutoff) {
+    fire_sites$risk_category[i] <- "Low"
+    
+  } else if (fire_sites$risk_score[i] < high_cutoff) {
+    fire_sites$risk_category[i] <- "Medium"
+    
+  } else {
+    fire_sites$risk_category[i] <- "High"
+  }
+}
+
+
+# Step 4: Check results
+table(fire_sites$risk_category)
+summary(fire_sites$risk_score)
+```
+```{r}
+#Call risk_factor function
+source(here("risk_factor_function.R"))
+
+fire_sites$risk_score <- NA
+
+for (i in 1:nrow(fire_sites)) {
+  
+  raw_risk <- risk_factor(
+    fire_sites$wildfire_probability[i],
+    fire_sites$distance[i]
+  )
+  
+  fire_sites$risk_score[i] <- log10(raw_risk + 0.001)
+}
+
+# Step 2: Calculate cutoffs based on the log10 risk scores
+low_cutoff <- quantile(fire_sites$risk_score, 0.33, na.rm = TRUE)
+high_cutoff <- quantile(fire_sites$risk_score, 0.66, na.rm = TRUE)
+
+
+# Step 3: Classify risk categories
+fire_sites$risk_category <- NA
+
+for (i in 1:nrow(fire_sites)) {
+  
+  if (is.na(fire_sites$risk_score[i])) {
+    fire_sites$risk_category[i] <- NA
+    
+  } else if (fire_sites$risk_score[i] < low_cutoff) {
+    fire_sites$risk_category[i] <- "Low"
+    
+  } else if (fire_sites$risk_score[i] < high_cutoff) {
+    fire_sites$risk_category[i] <- "Medium"
+    
+  } else {
+    fire_sites$risk_category[i] <- "High"
+  }
+}
+
+
+# Step 4: Check results
+table(fire_sites$risk_category)
+summary(fire_sites$risk_score)
+
+#Classify the sites into low, medium, and high risk:
+
+fire_sites$risk_category <- NA
+
+for (i in 1:nrow(fire_sites)) {
+  
+  if (fire_sites$risk_score[i] < 0.5) {
+    fire_sites$risk_category[i] <- "Low"
+  } else if (fire_sites$risk_score[i] < 1.2) {
+    fire_sites$risk_category[i] <- "Medium"
+  } else {
+    fire_sites$risk_category[i] <- "High"
+  }
+}
 ```
 
 # -----------------------------
@@ -124,6 +257,7 @@ source(here("wildfire_likelihood.R"))
 # -----------------------------
 
 ```{r}
+
 for (i in 1:nrow(fire_sites)) {
 
  fire_sites$climate_risk_factor[i] <- climate_conditions(
