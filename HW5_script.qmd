@@ -119,27 +119,30 @@ In this module, the function combines the climate fire risk and land conditions 
 source(here("wildfire_likelihood.R"))
 source("wildfire_likelihood.R")
 
-# After creating fire_sites, run the Module 3 loop
-fire_sites$climate_fire_probability <- NA
-fire_sites$land_fire_probability <- NA
-fire_sites$wildfire_probability <- NA
+# Create a new data frame to store the module and program outputs
+fire_sites_probability <- fire_sites
 
-fire_sites_probability <- for (i in 1:nrow(fire_sites)) {
+# After creating fire_sites_probability data frame, run the Module 3 loop
+fire_sites_probability$climate_fire_probability <- NA
+fire_sites_probability$land_fire_probability <- NA
+fire_sites_probability$wildfire_probability <- NA
+
+for (i in 1:nrow(fire_sites)) {
   
-  fire_sites$climate_fire_probability[i] <- climate_conditions(
-    fire_sites$temperature[i],
-    fire_sites$humidity[i],
-    fire_sites$wind_speed[i]
+  fire_sites_probability$climate_fire_probability[i] <- climate_conditions(
+    fire_sites_probability$temperature[i],
+    fire_sites_probability$humidity[i],
+    fire_sites_probability$wind_speed[i]
   )
   
-  fire_sites$land_fire_probability[i] <- land_conditions(
-    fire_sites$fuel_moisture[i],
-    fire_sites$slope[i]
+  fire_sites_probability$land_fire_probability[i] <- land_conditions(
+    fire_sites_probability$fuel_moisture[i],
+    fire_sites_probability$slope[i]
   )
   
-  fire_sites$wildfire_probability[i] <- wildfire_likelihood(
-    fire_sites$climate_fire_probability[i],
-    fire_sites$land_fire_probability[i]
+  fire_sites_probability$wildfire_probability[i] <- wildfire_likelihood(
+    fire_sites_probability$climate_fire_probability[i],
+    fire_sites_probability$land_fire_probability[i]
   )
 }
 # View the data frame & save as a CSV
