@@ -1,22 +1,22 @@
 #' Climate Risk Factor
 #' 
-#' This function measures the probability that 2 individuals randomly selected from a sample will belong to the same species.
-#' Values is between 0 and 1, with lower values associated with lower diversity.
-#' 
-#' climate_risk = (temperature / 40) +  ((100 - humidity) / 100) +  (wind_speed / 60)
+#' This function computes the level of wildfire likelihood based on climate conditions alone for each site.
+#' Higher  values for the climate risk factor indicate a greater wildfire likelihood at each site due to average climate conditions measured at that site.
 
-#' @param temperature average temperature at site
-#' @param humidity average humidity at site 
-#' @param wind_speed average wind speed at site 
+#' @param temperature average temperature at site in degrees Celsius
+#' @param humidity average humidity at site in percent
+#' @param wind_speed average wind speed at site in km/hr 
+#' @param ht hot fire-weather temperature upper bound in degrees Celsius (constant) 
+#' @param wv high wind speed upper bound in km/hr (constant) 
 #' @return climate_risk_factor  
-#'
-#'
-climate_conditions <- function(temperature, humidity, wind_speed) {
+
+climate_conditions <- function(temperature, humidity, wind_speed, ht = 40, wv = 60) {
   
   climate_risk_factor <-
-    (temperature / 40) +
+    (temperature / ht) +
     ((100 - humidity) / 100) +
-    (wind_speed / 60)
+    (wind_speed / wv)
   
   return(climate_risk_factor)
 }
+
