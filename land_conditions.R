@@ -11,8 +11,8 @@ land_conditions = function(fuel_moisture, slope) {
   
   slope_spread_factor <- 2**(slope / 10) #Incorporate the effect of slope on the rate of spread. Rate of spread doubles for every 10 degrees of slope. 
   
-  raw_land_fire_factor <- fuel_ignition_probability * slope_spread_factor #Calculate land based fire probability and convert to a 0-1 scale
-  land_fire_probability <- raw_land_fire_factor / (1 + raw_land_fire_factor)
+  raw_land_fire_factor <- fuel_ignition_probability * slope_spread_factor #Calculate land based fire probability
+  land_fire_probability <- raw_land_fire_factor / (1 + raw_land_fire_factor) #Convert to 0-1 scale
   
   return(land_fire_probability)
 }
