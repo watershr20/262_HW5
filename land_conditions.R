@@ -1,6 +1,12 @@
-library(tidyverse)
-library(here)
-
+#' Land-Based Fire Probability
+#' Calculates the probability of a wildfire igniting and spreading based entirely on land-based conditions for each site
+#' Values range from 0 to 1 with higher values indicating a greater fire probability
+#' 
+#' @param fuel_moisture Amount of water in vegetation as a percent of its dry weight, averaged across the site's area
+#' @param slope Average topographic slope of the site in degrees
+#' @param fms Fuel moisture sensitivity (factor controlling how much a decrease in fuel moisture leads to an increase in fire probability)
+#' @param ignition_threshold Curve shift to increase ignition probability for drier fuels
+#' @return land_fire_probability
 
 land_conditions = function(fuel_moisture, slope) {
   
