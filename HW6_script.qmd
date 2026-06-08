@@ -11,7 +11,6 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```
 
 First, we install the relevant packages.
-
 ```{r}
 library(tidyverse)
 library(here)
@@ -19,8 +18,7 @@ library(devtools)
 library(testthat)
 ```
 
-### Input: Set Up the Data Frame
-
+Next, we call in the functions from our repository.
 ```{r}
 #Call functions
 
@@ -29,28 +27,8 @@ source("land_conditions.R")
 source("wildfire_likelihood.R")
 ```
 
-
-```{r}
-#Create data for tests
-climate_result <- climate_conditions(
-  temperature = 35,
-  humidity = 15,
-  wind_speed = 40
-)
-
-land_result <- land_conditions(
-  fuel_moisture = 6,
-  slope = 25
-)
-
-wildfire_result <- wildfire_likelihood(
-  climate_fire_probability = climate_result,
-  land_fire_probability = land_result
-)
-```
-
 # Run Functions with Example Data
-
+Here we generate sample site conditions to run functions on and then proceed to run each function accordingly. Function results are each stored in a new corresponding vector.
 ```{r}
 # Example site conditions
 temperature <- 35
@@ -76,33 +54,35 @@ wildfire_result <- wildfire_likelihood(
   land_fire_probability = land_result
 )
 
+# View function results
 climate_result
 land_result
 wildfire_result
 ```
 
 # Run tests
-The following code runs all tests stored in the `tests` folder.
-```{r run-tests}
+Finally, we run all of our new tests tests which are stored in the `tests` folder of our repository.
+```{r}
+#| label: run-tests
+#| error: true
+
 test_dir(here("tests"))
 ```
 
-#Test results
+# Test results
 
-1. test_climate_conditions.R
+## 1. test_climate_conditions.R
 
-The climate conditions tests check that the function returns a single numeric probability-like value between 0 and 1. The tests also confirm that the function behaves logically by producing a higher climate fire probability under hotter, drier, and windier conditions.
+This file runs the following tests to: check that the function returns a single numeric probability-like value; check that the value returned is between 0 and 1; and  confirm that the function behaves logically by producing a higher climate fire probability under hotter, drier, and windier conditions.
 
-These tests are valid and should pass if your function returns one numeric probability between 0 and 1. Your file checks that climate_conditions() returns a numeric value of length 1 and that the result falls between 0 and 
+These tests are valid and should pass. 
 
-2. test_land_conditions.R
-expect_error() tests are testing whether the functions break appropriately when given invalid inputs. Those tests will only pass if the functions include input checks with stop(). If the functions do not include those checks, the expect_error() tests may fail, which can still be useful if your goal is to show what happens when code does not handle bad inputs.
+
+## 2. test_land_conditions.R
 
 The land conditions tests check both input handling and expected fire-risk behavior. The expect_error() tests intentionally pass unrealistic inputs to see whether the function breaks appropriately. The remaining tests check that lower fuel moisture and steeper slopes increase land-based fire probability, which matches the assumptions of the model.
 
 
-3. test_wildfire_likelihood.R
+## 3. test_wildfire_likelihood.R
 
 The wildfire likelihood tests check whether the function handles invalid probability inputs and whether the calculation behaves as expected. The error tests use values outside the 0–1 probability range or non-numeric inputs to demonstrate how the function responds to bad inputs. The remaining tests confirm that increasing either climate fire probability or land fire probability increases the final wildfire probability.
-
-
