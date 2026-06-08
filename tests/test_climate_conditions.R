@@ -5,9 +5,6 @@ library(devtools)
 library(testthat)
 library(here)
 
-expect_true(climate_fire_probability <= 1)
-expect_length(climate_fire_probability, nrow = 100, ncol = 1)
-
 source(here("climate_conditions.R"))
 
 test_that("climate_conditions returns a numeric value", {

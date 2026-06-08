@@ -47,5 +47,5 @@ test_that("wildfire_likelihood_works", {
                                     land_fire_probability = 20))
 #Check that maximizing both inputs doesn't give an output greater than 100%
   expect_true(wildfire_likelihood(climate_fire_probability = 100, 
-                                  land_fire_probability = 100) < 100
+                                  land_fire_probability = 100) < 100)
 })
