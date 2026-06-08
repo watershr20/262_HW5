@@ -82,9 +82,7 @@ wildfire_result
 ```
 
 # Run tests
-
-The following code runs all tests stored in the `tests` folder. Each test file should be named using the format `test_<function_name>.R`, such as `test_climate_conditions.R`, `test_land_conditions.R`, and `test_wildfire_likelihood.R`.
-
+The following code runs all tests stored in the `tests` folder.
 ```{r run-tests}
 test_dir(here("tests"))
 ```
@@ -107,13 +105,4 @@ The land conditions tests check both input handling and expected fire-risk behav
 
 The wildfire likelihood tests check whether the function handles invalid probability inputs and whether the calculation behaves as expected. The error tests use values outside the 0–1 probability range or non-numeric inputs to demonstrate how the function responds to bad inputs. The remaining tests confirm that increasing either climate fire probability or land fire probability increases the final wildfire probability.
 
-# Test files included in repository
-
-The repository should include the following files in the `tests` folder:
-
--   `test_climate_conditions.R`
--   `test_land_conditions.R`
--   `test_wildfire_likelihood.R`
-
-Each file contains at least two `expect_*()` commands that check whether the function returns the expected type, length, range, and/or behavior. These tests help verify that the modular wildfire risk functions are working as intended.
 
